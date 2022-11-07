@@ -139,9 +139,9 @@ with row1_2:
 row2_1, row2_2, row2_3, row2_4 = st.columns((2, 1, 1, 1))
 
 # SETTING THE ZOOM LOCATIONS FOR THE AIRPORTS
-la_guardia = [40.7900, -73.8700]
-jfk = [40.6650, -73.7821]
-newark = [40.7090, -74.1805]
+london = [51.504831314, -0.123499506]
+paris = [48.858370, 2.294481]
+rome = [41.8874314503, 12.4886930452]
 zoom_level = 12
 midpoint = mpoint(data["lat"], data["lon"])
 
@@ -153,15 +153,15 @@ with row2_1:
 
 with row2_2:
     st.write("**London**")
-    map(filterdata(data, hour_selected), la_guardia[0], la_guardia[1], zoom_level)
+    map(filterdata(data, hour_selected), london[0], london[1], zoom_level)
 
 with row2_3:
     st.write("**Paris**")
-    map(filterdata(data, hour_selected), jfk[0], jfk[1], zoom_level)
+    map(filterdata(data, hour_selected), paris[0], paris[1], zoom_level)
 
 with row2_4:
     st.write("**Rome**")
-    map(filterdata(data, hour_selected), newark[0], newark[1], zoom_level)
+    map(filterdata(data, hour_selected), rome[0], rome[1], zoom_level)
 
 # CALCULATING DATA FOR THE HISTOGRAM
 chart_data = histdata(data, hour_selected)

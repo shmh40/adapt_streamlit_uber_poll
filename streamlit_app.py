@@ -22,7 +22,7 @@ import pydeck as pdk
 import streamlit as st
 
 # SETTING PAGE CONFIG TO WIDE MODE AND ADDING A TITLE AND FAVICON
-st.set_page_config(layout="wide", page_title="European Pollution", page_icon=":taxi:")
+st.set_page_config(layout="wide", page_title="European Air Pollution", page_icon=":taxi:")
 
 # LOAD DATA ONCE
 @st.experimental_singleton
@@ -120,7 +120,7 @@ def update_query_params():
 
 
 with row1_1:
-    st.title("NYC Uber Ridesharing Data")
+    st.title("European Ozone Air Pollution")
     hour_selected = st.slider(
         "Select hour of pickup", 0, 23, key="pickup_hour", on_change=update_query_params
     )
@@ -130,7 +130,7 @@ with row1_2:
     st.write(
         """
     ##
-    Examining how Uber pickups vary over time in New York City's and at its major regional airports.
+    Illustrating how ozone air pollution measured at stations across Europe can vary with time. Focus in on three cities: London, Paris, and Rome.
     By sliding the slider on the left you can view different slices of time and explore different transportation trends.
     """
     )
@@ -147,20 +147,20 @@ midpoint = mpoint(data["lat"], data["lon"])
 
 with row2_1:
     st.write(
-        f"""**All New York City from {hour_selected}:00 and {(hour_selected + 1) % 24}:00**"""
+        f"""**All Europe from {hour_selected}:00 and {(hour_selected + 1) % 24}:00**"""
     )
     map(filterdata(data, hour_selected), midpoint[0], midpoint[1], 11)
 
 with row2_2:
-    st.write("**La Guardia Airport**")
+    st.write("**London**")
     map(filterdata(data, hour_selected), la_guardia[0], la_guardia[1], zoom_level)
 
 with row2_3:
-    st.write("**JFK Airport**")
+    st.write("**Paris**")
     map(filterdata(data, hour_selected), jfk[0], jfk[1], zoom_level)
 
 with row2_4:
-    st.write("**Newark Airport**")
+    st.write("**Rome**")
     map(filterdata(data, hour_selected), newark[0], newark[1], zoom_level)
 
 # CALCULATING DATA FOR THE HISTOGRAM

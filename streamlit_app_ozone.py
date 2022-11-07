@@ -22,23 +22,24 @@ import pydeck as pdk
 import streamlit as st
 
 # SETTING PAGE CONFIG TO WIDE MODE AND ADDING A TITLE AND FAVICON
-st.set_page_config(layout="wide", page_title="NYC Ridesharing Demo", page_icon=":taxi:")
+st.set_page_config(layout="wide", page_title="European Air Pollution", page_icon=":taxi:")
 
 # LOAD DATA ONCE
 @st.experimental_singleton
 def load_data():
     data = pd.read_csv(
-        "uber-raw-data-sep14.csv.gz",
+        "uk_france_italy_o3_nans_no2_no_non_strict_drop_dups.csv",
         nrows=100000,  # approx. 10% of data
         names=[
-            "date/time",
+            "datetime",
             "lat",
             "lon",
+            "o3",
         ],  # specify names directly since they don't change
         skiprows=1,  # don't read header since names specified directly
-        usecols=[0, 1, 2],  # doesn't load last column, constant value "B02512"
+        usecols=[0, 4, 5, 18],  # doesn't load last column, constant value "B02512"
         parse_dates=[
-            "date/time"
+            "datetime"
         ],  # set as datetime instead of converting after the fact
     )
 
@@ -75,7 +76,7 @@ def map(data, lat, lon, zoom):
 # FILTER DATA FOR A SPECIFIC HOUR, CACHE
 @st.experimental_memo
 def filterdata(df, hour_selected):
-    return df[df["date/time"].dt.hour == hour_selected]
+    return df[df["datetime"].dt.hour == hour_selected]
 
 
 # CALCULATE MIDPOINT FOR GIVEN SET OF DATA
@@ -86,12 +87,12 @@ def mpoint(lat, lon):
 
 # FILTER DATA BY HOUR
 @st.experimental_memo
-def histdata(df, hr):
-    filtered = data[
-        (df["date/time"].dt.hour >= hr) & (df["date/time"].dt.hour < (hr + 1))
+def histdata(df, day):
+    filtered = data.o3[
+        (df["datetime"] >= day) & (df["datetime"] < (day + 1))
     ]
 
-    hist = np.histogram(filtered["date/time"].dt.minute, bins=60, range=(0, 60))[0]
+    hist = np.histogram(filtered["datetime"].dt.minute, bins=60, range=(0, 60))[0]
 
     return pd.DataFrame({"minute": range(60), "pickups": hist})
 
@@ -120,7 +121,7 @@ def update_query_params():
 
 
 with row1_1:
-    st.title("NYC Uber Ridesharing Data")
+    st.title("European Ozone Air Pollution")
     hour_selected = st.slider(
         "Select hour of pickup", 0, 23, key="pickup_hour", on_change=update_query_params
     )
@@ -130,7 +131,7 @@ with row1_2:
     st.write(
         """
     ##
-    Examining how Uber pickups vary over time in New York City's and at its major regional airports.
+    Illustrating how ozone air pollution measured at stations across Europe can vary with time. Focus in on three cities: London, Paris, and Rome.
     By sliding the slider on the left you can view different slices of time and explore different transportation trends.
     """
     )
@@ -139,29 +140,29 @@ with row1_2:
 row2_1, row2_2, row2_3, row2_4 = st.columns((2, 1, 1, 1))
 
 # SETTING THE ZOOM LOCATIONS FOR THE AIRPORTS
-la_guardia = [40.7900, -73.8700]
-jfk = [40.6650, -73.7821]
-newark = [40.7090, -74.1805]
+london = [51.504831314, -0.123499506]
+paris = [48.858370, 2.294481]
+rome = [41.8874314503, 12.4886930452]
 zoom_level = 12
 midpoint = mpoint(data["lat"], data["lon"])
 
 with row2_1:
     st.write(
-        f"""**All New York City from {hour_selected}:00 and {(hour_selected + 1) % 24}:00**"""
+        f"""**All Europe from {hour_selected}:00 and {(hour_selected + 1) % 24}:00**"""
     )
     map(filterdata(data, hour_selected), midpoint[0], midpoint[1], 11)
 
 with row2_2:
-    st.write("**La Guardia Airport**")
-    map(filterdata(data, hour_selected), la_guardia[0], la_guardia[1], zoom_level)
+    st.write("**London**")
+    map(filterdata(data, hour_selected), london[0], london[1], zoom_level)
 
 with row2_3:
-    st.write("**JFK Airport**")
-    map(filterdata(data, hour_selected), jfk[0], jfk[1], zoom_level)
+    st.write("**Paris**")
+    map(filterdata(data, hour_selected), paris[0], paris[1], zoom_level)
 
 with row2_4:
-    st.write("**Newark Airport**")
-    map(filterdata(data, hour_selected), newark[0], newark[1], zoom_level)
+    st.write("**Rome**")
+    map(filterdata(data, hour_selected), rome[0], rome[1], zoom_level)
 
 # CALCULATING DATA FOR THE HISTOGRAM
 chart_data = histdata(data, hour_selected)

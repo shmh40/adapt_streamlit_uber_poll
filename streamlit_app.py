@@ -34,8 +34,8 @@ def load_data():
         nrows=10000000,  # approx. 10% of data
         names=[
             "datetime",
-            "lon",
             "lat",
+            "lon",
             "o3",
         ],  # specify names directly since they don't change
         skiprows=1,  # don't read header since names specified directly
@@ -61,13 +61,14 @@ def map(df, lat, lon, zoom):
             },
             layers=[
                 pdk.Layer(
-                    "HexagonLayer",
+                    "ColumnLayer",
                     data=df,
                     get_position=["lat", "lon"],
-                    get_elevation=["o3"],
-                    radius=1000,
-                    elevation_scale=500,
-                    elevation_range=[100, 250],
+                    get_elevation="o3",
+                    get_fill_color=["o3*3", "200-o3*2", 100],
+                    radius=8000,
+                    elevation_scale=2000,
+                    elevation_range=[100, 1000],
                     pickable=True,
                     extruded=True,
                     auto_highlight=True
@@ -106,6 +107,9 @@ def histdata(df, day):
 
 # STREAMLIT APP LAYOUT
 data = load_data()
+
+#min_o3 = data["o3"].min()
+#max_o3 = data["o3"].max()
 
 # LAYING OUT THE TOP SECTION OF THE APP
 row1_1, row1_2 = st.columns((2, 3))
@@ -151,7 +155,7 @@ london = [51.504831314, -0.123499506]
 paris = [48.858370, 2.294481]
 rome = [41.8874314503, 12.4886930452]
 zoom_level = 7
-midpoint = mpoint(data["lon"], data["lat"])
+midpoint = mpoint(data["lat"], data["lon"])
 
 with row2_1:
     st.write(

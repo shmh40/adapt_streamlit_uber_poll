@@ -139,7 +139,7 @@ with row1_2:
         """
     ##
     Illustrating how ozone air pollution measured at stations across Europe can vary with time. Focus in on three cities: London, Paris, and Rome.
-    By sliding the slider on the left you can view different slices of time and explore ozone trends.
+    By sliding the slider on the left you can view different slices of time and explore ozone.
     """
     )
 

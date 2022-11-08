@@ -24,14 +24,16 @@ from datetime import datetime
 
 
 # SETTING PAGE CONFIG TO WIDE MODE AND ADDING A TITLE AND FAVICON
-st.set_page_config(layout="wide", page_title="European Air Pollution", page_icon=":taxi:")
+st.set_page_config(layout="wide", page_title="European Air Pollution", page_icon=":cloud:")
 
 # LOAD DATA ONCE
 @st.experimental_singleton
 def load_data():
     data = pd.read_csv(
         "uk_france_italy_o3_nans_no2_no_non_strict_drop_dups.csv",
-        nrows=10000000,  # approx. 10% of data
+        #"all_test_countries_o3_nans_no2_no_non_strict_drop_dups.csv",
+        #"both_ukfrit_and_test_countries_o3_nans_no2_no_non_strict_drop_dups.csv",
+        #nrows=1000000,  # approx. 10% of data # this is so fucking weird, why does it only work when we select nrows = 1000000 when we use both...
         names=[
             "datetime",
             "lat",
@@ -66,7 +68,7 @@ def map(df, lat, lon, zoom):
                     get_position=["lat", "lon"],
                     get_elevation="o3",
                     get_fill_color=["o3*3", "200-o3*2", 100],
-                    radius=8000,
+                    radius=6000,
                     elevation_scale=2000,
                     elevation_range=[100, 1000],
                     pickable=True,
@@ -130,11 +132,12 @@ def update_query_params():
     date_selected = st.session_state["date"]
     st.experimental_set_query_params(date=date_selected)
 
-
+# important note here: this breaks when we use different dates! Safe is 2007, 9, 9
+# I expect this just requires us to reload the webpage in a fuller way...
 with row1_1:
     st.title("European Ozone Air Pollution")
     date_selected = st.slider(
-        "Select date", value=datetime(2007, 9, 9), format="DD/MM/YY", key="date", on_change=update_query_params
+        "Select date", value=datetime(2011, 9, 9), format="DD/MM/YYYY", key="date", on_change=update_query_params
     )
 
 
@@ -154,14 +157,14 @@ row2_1, row2_2, row2_3, row2_4 = st.columns((2, 1, 1, 1))
 london = [51.504831314, -0.123499506]
 paris = [48.858370, 2.294481]
 rome = [41.8874314503, 12.4886930452]
-zoom_level = 7
+zoom_level = 6
 midpoint = mpoint(data["lat"], data["lon"])
 
 with row2_1:
     st.write(
         f"""**All Europe on {date_selected}**"""
     )
-    map(filterdata(data, date_selected), midpoint[0], midpoint[1], 4)
+    map(filterdata(data, date_selected), midpoint[0], midpoint[1], 3.7)
 
 with row2_2:
     st.write("**London**")

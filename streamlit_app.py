@@ -31,11 +31,11 @@ st.set_page_config(layout="wide", page_title="European Air Pollution", page_icon
 def load_data():
     data = pd.read_csv(
         "uk_france_italy_o3_nans_no2_no_non_strict_drop_dups.csv",
-        nrows=1000000,  # approx. 10% of data
+        nrows=10000000,  # approx. 10% of data
         names=[
             "datetime",
-            "lat",
             "lon",
+            "lat",
             "o3",
         ],  # specify names directly since they don't change
         skiprows=1,  # don't read header since names specified directly
@@ -49,7 +49,7 @@ def load_data():
 
 
 # FUNCTION FOR AIRPORT MAPS
-def map(data, lat, lon, zoom):
+def map(df, lat, lon, zoom):
     st.write(
         pdk.Deck(
             map_style="mapbox://styles/mapbox/light-v9",
@@ -62,13 +62,15 @@ def map(data, lat, lon, zoom):
             layers=[
                 pdk.Layer(
                     "HexagonLayer",
-                    data=data,
-                    get_position=["lon", "lat"],
-                    radius=10000,
-                    elevation_scale=400,
-                    elevation_range=[0, 1000],
+                    data=df,
+                    get_position=["lat", "lon"],
+                    get_elevation=["o3"],
+                    radius=1000,
+                    elevation_scale=500,
+                    elevation_range=[100, 250],
                     pickable=True,
                     extruded=True,
+                    auto_highlight=True
                 ),
             ],
         )
@@ -79,7 +81,7 @@ def map(data, lat, lon, zoom):
 @st.experimental_memo
 def filterdata(df, date_selected):
     #return df[df["datetime"].dt.date == date_selected]
-    data_specific_datetime = df[df["datetime"].dt.date == date_selected]
+    data_specific_datetime = df[df["datetime"] == date_selected]
     return data_specific_datetime
 
 
@@ -128,7 +130,7 @@ def update_query_params():
 with row1_1:
     st.title("European Ozone Air Pollution")
     date_selected = st.slider(
-        "Select date", value=datetime(2005, 1, 1), format="DD/MM/YY", key="date", on_change=update_query_params
+        "Select date", value=datetime(2007, 9, 9), format="DD/MM/YY", key="date", on_change=update_query_params
     )
 
 
@@ -137,7 +139,7 @@ with row1_2:
         """
     ##
     Illustrating how ozone air pollution measured at stations across Europe can vary with time. Focus in on three cities: London, Paris, and Rome.
-    By sliding the slider on the left you can view different slices of time and explore different transportation trends.
+    By sliding the slider on the left you can view different slices of time and explore ozone trends.
     """
     )
 
@@ -148,14 +150,14 @@ row2_1, row2_2, row2_3, row2_4 = st.columns((2, 1, 1, 1))
 london = [51.504831314, -0.123499506]
 paris = [48.858370, 2.294481]
 rome = [41.8874314503, 12.4886930452]
-zoom_level = 12
-midpoint = mpoint(data["lat"], data["lon"])
+zoom_level = 7
+midpoint = mpoint(data["lon"], data["lat"])
 
 with row2_1:
     st.write(
         f"""**All Europe on {date_selected}**"""
     )
-    map(filterdata(data, date_selected), midpoint[0], midpoint[1], 11)
+    map(filterdata(data, date_selected), midpoint[0], midpoint[1], 4)
 
 with row2_2:
     st.write("**London**")
